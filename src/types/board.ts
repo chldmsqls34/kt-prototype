@@ -54,3 +54,15 @@ export interface CommentListItem {
   createdAt: string;
   author: string;
 }
+
+export interface ProfileEntity {
+  id: string;
+  nickname: string;
+  avatar_url: string;
+}
+
+export interface ProfileDetail {
+  id: string;
+  nickname: string;
+  avatarUrl: string;
+}
