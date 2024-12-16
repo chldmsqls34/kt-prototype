@@ -1,1 +1,0 @@
-export { WithFullWidthFlyoutMenu } from './with-full-width-flyout-menu';
