@@ -381,7 +381,7 @@ export const MEDIA_BANNER_DATA: BannerData = {
 
 export const FAN_BANNER_DATA: BannerData = {
   '/': {
-    title: '게시판',
+    title: '팬 소통공간',
     description: 'KT Wiz의 게시판입니다.',
     tabs: [],
   },
