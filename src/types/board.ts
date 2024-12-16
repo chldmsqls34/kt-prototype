@@ -1,10 +1,3 @@
-export interface ProfileEntity {
-  id: string;
-  nickname: string;
-  avatar_url: string;
-  created_at: Date;
-}
-
 export interface PostEntity {
   id: number;
   user_id: string;
@@ -60,10 +53,4 @@ export interface CommentListItem {
   content: string;
   createdAt: string;
   author: string;
-}
-
-export interface UserProfile {
-  id: string;
-  nickname: string;
-  avatarUrl: string;
 }
