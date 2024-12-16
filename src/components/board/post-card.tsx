@@ -1,80 +1,11 @@
 "use client";
+import { PostListItem } from "@/types";
 import { useRouter } from "next/navigation";
+interface PostCardProps {
+  posts: PostListItem[]|null;
+}
 
-const posts = [
-  {
-    id: 1,
-    title: "kt wiz 홈페이지 오픈",
-    createdAt: "2024-12-15",
-    viewCount: 100,
-    author: "kt wiz"
-  },
-  {
-    id: 2,
-    title: "kt wiz 홈페이지 오픈",
-    createdAt: "2024-12-15",
-    viewCount: 100,
-    author: "kt wiz"
-  },
-  {
-    id: 3,
-    title: "kt wiz 홈페이지 오픈",
-    createdAt: "2024-12-15",
-    viewCount: 100,
-    author: "kt wiz"
-  },
-  {
-    id: 4,
-    title: "kt wiz 홈페이지 오픈",
-    createdAt: "2024-12-15",
-    viewCount: 100,
-    author: "kt wiz"
-  },
-  {
-    id: 5,
-    title: "kt wiz 홈페이지 오픈",
-    createdAt: "2024-12-15",
-    viewCount: 100,
-    author: "kt wiz"
-  },
-  {
-    id: 6,
-    title: "kt wiz 홈페이지 오픈",
-    createdAt: "2024-12-15",
-    viewCount: 100,
-    author: "kt wiz"
-  },
-  {
-    id: 7,
-    title: "kt wiz 홈페이지 오픈",
-    createdAt: "2024-12-15",
-    viewCount: 100,
-    author: "kt wiz"
-  },
-  {
-    id: 8,
-    title: "kt wiz 홈페이지 오픈",
-    createdAt: "2024-12-15",
-    viewCount: 100,
-    author: "kt wiz"
-  },
-  {
-    id: 9,
-    title: "kt wiz 홈페이지 오픈",
-    createdAt: "2024-12-15",
-    viewCount: 100,
-    author: "kt wiz"
-  },
-  {
-    id: 10,
-    title: "kt wiz 홈페이지 오픈",
-    createdAt: "2024-12-15",
-    viewCount: 100,
-    author: "kt wiz"
-  }
-]
-
-export default function PostCard() {
+export default function PostCard({posts}: PostCardProps) {
   const router = useRouter();
 
   return (
