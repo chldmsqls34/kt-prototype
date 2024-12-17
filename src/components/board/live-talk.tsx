@@ -128,7 +128,7 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
             className="flex-1 py-3 px-4 border rounded-xl focus:outline-none text-sm h-24 resize-none"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyUp={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
+            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
           />
         </div>
       </div>
