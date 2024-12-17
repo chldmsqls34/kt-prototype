@@ -44,7 +44,7 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
 
     if (isAutoUpdate) {
       channel = supabase
-        .channel("realtime-chat")
+        .channel("ktwiz-realtime-chat")
         .on(
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "messages" },
