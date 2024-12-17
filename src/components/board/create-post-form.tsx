@@ -125,14 +125,17 @@ export default function CreatePostForm() {
             </label>
             <div className="flex gap-2">
               <button
-                onClick={() => router.push('/fan/board')}
-                className="bg-gray-400 text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push('/fan/board')
+                }}
+                className="bg-[--black-color-600] text-white text-sm px-4 py-2 rounded hover:bg-gray-400"
               >
                 목록보기
               </button>
               <button
                 type="submit"
-                className="bg-gray-600 text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
+                className="bg-gray-600 text-white text-sm px-4 py-2 rounded hover:bg-gray-400"
               >
                 작성하기
               </button>
