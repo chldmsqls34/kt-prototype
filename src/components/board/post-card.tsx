@@ -9,29 +9,29 @@ export default function PostCard({posts}: PostCardProps) {
   const router = useRouter();
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="px-4 sm:px-6 lg:px-8 min-h-[580px]">
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle">
-            <table className="min-w-full divide-y divide-gray-300">
+            <table className="min-w-full divide-y divide-gray-300 table-fixed">
               <thead>
                 <tr>
                   <th
                     scope="col"
-                    className="py-3.5 pl-4 pr-3 text-center text-sm font-semibold text-gray-900 sm:pl-6 lg:pl-8"
+                    className="w-1/12 py-3.5 pl-4 pr-3 text-center text-sm font-semibold text-gray-900 sm:pl-6 lg:pl-8"
                   >
                     NO
                   </th>
-                  <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
+                  <th scope="col" className="w-5/12 px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
                     제목
                   </th>
-                  <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
+                  <th scope="col" className="w-2/12 px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
                     작성자
                   </th>
-                  <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
+                  <th scope="col" className="w-2/12 px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
                     작성일
                   </th>
-                  <th scope="col" className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
+                  <th scope="col" className="w-2/12 px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
                     조회수
                   </th>
                 </tr>
