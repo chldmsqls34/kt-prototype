@@ -3,8 +3,10 @@ import { createPost } from "@/services/post-action";
 import { useFormState } from "react-dom";
 import { useState } from "react";
 import { PaperClipIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 
 export default function CreatePostForm() {
+  const router = useRouter();
   const initialState = { message: '', errors: {} };
   const [state, formAction] = useFormState(createPost, initialState);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
@@ -117,17 +119,24 @@ export default function CreatePostForm() {
           )}
 
           <div className="flex justify-between items-center mt-5 border-t border-gray-200 pt-3">
-            {/* label과 input 연결 */}
             <label htmlFor="file-input" className="flex items-center text-gray-500 hover:text-gray-600 cursor-pointer">
               <PaperClipIcon className="h-5 w-5 mr-2" aria-hidden="true" />
               <span className="text-sm italic">파일 추가</span>
             </label>
-            <button
-              type="submit"
-              className="bg-gray-600 text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
-            >
-              작성하기
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => router.push('/fan/board')}
+                className="bg-gray-400 text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
+              >
+                목록보기
+              </button>
+              <button
+                type="submit"
+                className="bg-gray-600 text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
+              >
+                작성하기
+              </button>
+            </div>
           </div>
         </form>
       </div>
