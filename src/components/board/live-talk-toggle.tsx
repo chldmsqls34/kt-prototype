@@ -15,7 +15,7 @@ export default function LiveTalkToggle({ userData }: { userData: ProfileDetail |
         <button
           onClick={toggle}
           className={clsx(
-            "flex items-center justify-center w-14 h-14 font-semibold mt-14 rounded-full text-xs text-white ml-14",
+            "fixed bottom-5 right-5 z-50 flex items-center justify-center w-16 h-16 font-semibold rounded-full text-xs text-white",
             "bg-[--red-color-100]"
           )}
         >
