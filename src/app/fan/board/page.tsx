@@ -33,7 +33,7 @@ export default async function FanBoardPage({
       <Banner {...FAN_BANNER_DATA['/']}>
         <TabMenu tabs={FAN_BANNER_DATA['/'].tabs} />
       </Banner>
-      <div className="flex w-full px-10 space-x-4 pb-16 lg:pl-20 xl:pl-52">
+      <div className="flex w-full px-10 space-x-8 pb-16 lg:pl-20 xl:pl-52">
         <div className="flex-1 max-w-[1100px]">
           <div className="mt-[50px] flex w-full justify-between">
             <BoardSearchBar/>
