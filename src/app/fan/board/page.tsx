@@ -1,5 +1,5 @@
 import BoardSearchBar from "@/components/board/board-search-bar";
-import LiveTalk from "@/components/board/chat/live-talk";
+import LiveTalk from "@/components/board/live-talk";
 import { CreatePost } from "@/components/board/post-buttons";
 import PostCard from "@/components/board/post-card";
 import { Banner } from "@/components/common/banner";
@@ -9,7 +9,6 @@ import Breadcrumbs from "@/components/tailwind-ui/breadcrumbs/simple-with-chevro
 import { FAN_BANNER_DATA } from "@/contants";
 import { fetchFilteredPost, fetchPostsPages } from "@/services/post-service";
 import { fetchProfile } from "@/services/profile-service";
-
 
 export default async function FanBoardPage({
   searchParams,
@@ -29,22 +28,23 @@ export default async function FanBoardPage({
     fetchProfile(),
   ]);
 
-
   return(
     <div className="w-full h-full">
       <Banner {...FAN_BANNER_DATA['/']}>
         <TabMenu tabs={FAN_BANNER_DATA['/'].tabs} />
       </Banner>
-      <div className="flex w-full px-4 justify-center space-x-20">
-        <div className="w-[1100px] h-full">
+      <div className="flex w-full px-4 justify-center space-x-12 pb-16">
+        <div className="w-[1100px]">
           <div className="mt-[50px] flex w-full justify-between">
             <BoardSearchBar/>
             <Breadcrumbs pages={['HOME', 'FAN', '팬 소통공간']} />
           </div>
           <PostCard posts={postData}/>
-          {totalPages && <Pagination totalPages={totalPages} />}
-          <div className="py-4 flex justify-end">
-            <CreatePost/>
+          <div className="mt-4 flex justify-between items-center">
+            <div className="mx-auto flex justify-center">
+              {totalPages && <Pagination totalPages={totalPages} />}
+            </div>
+            <CreatePost />
           </div>
         </div>
         <LiveTalk userData={userData}/>

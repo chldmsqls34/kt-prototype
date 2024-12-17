@@ -91,22 +91,21 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
       <div className="flex flex-col text-sm w-full">
         <div className="bg-gray-100 text-gray-800 rounded-xl shadow-sm w-full px-4 pt-2 pb-3 break-words space-y-3">
           <div className="text-gray-600 font-semibold mb-1 text-xs">{msgObj.nickname}</div>
-          <div>{msgObj.content}</div>
+          <div className="whitespace-pre-wrap">{msgObj.content}</div> {/**줄바꿈 표시*/}
         </div>
       </div>
     </div>
   ));
   
-
   return (
-    <div className="bg-white w-[400px] h-[630px] flex flex-col mt-[50px] border rounded-xl">
-      <div className="p-4 pb-2 font-extrabold">응원 오픈톡</div>
+    <div className="bg-white w-[400px] h-[630px] flex flex-col mt-[50px] border rounded-xl p-2">
+      <div className="p-4 pb-1 font-extrabold">응원 오픈톡</div>
       <div className="flex items-center justify-end px-2">
         <span className="text-xs">자동 업데이트</span>
         <button
           onClick={toggleAutoUpdate}
-          className={`ml-2 px-3 py-1 text-xs font-semibold rounded ${
-            isAutoUpdate ? "bg-green-500 text-white" : "bg-gray-300 text-gray-700"
+          className={`flex w-10 justify-center ml-2 px-3 py-1 text-xs text-white font-semibold rounded ${
+            isAutoUpdate ? "bg-[--blue-color-100]" : "bg-[--gray-color-100]"
           }`}
         >
           {isAutoUpdate ? "ON" : "OFF"}
@@ -114,12 +113,11 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
       </div>
       <div className="p-2 flex items-center justify-between">
         <div className="flex items-center space-x-2 flex-1">
-          <input
-            className="flex-1 py-3 px-4 border rounded-xl focus:outline-none text-sm h-[60px]"
-            type="text"
+          <textarea
+            className="flex-1 py-3 px-4 border rounded-xl focus:outline-none text-sm h-24 resize-none"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyUp={(e) => e.key === "Enter" && handleSendMessage()}
+            onKeyUp={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
           />
         </div>
       </div>
