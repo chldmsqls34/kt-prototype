@@ -1,7 +1,6 @@
 "use client";
 import { ProfileDetail } from "@/types";
 import { createClient } from "@/utils/supabase/client";
-import { XMarkIcon } from "@heroicons/react/24/solid";
 import { useEffect, useRef, useState } from "react";
 
 interface Message {
@@ -13,13 +12,7 @@ interface Message {
 }
 const supabase = createClient();
 
-export default function LiveTalk({ 
-  userData,
-  onClose,
- }: { 
-  userData: ProfileDetail | null;
-  onClose: () => void;
- }) {
+export default function LiveTalk({ userData }: { userData: ProfileDetail | null }) {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAutoUpdate, setIsAutoUpdate] = useState(true); // 자동 업데이트 상태
@@ -116,13 +109,7 @@ export default function LiveTalk({
   ));
   
   return (
-    <div className="bg-white w-[350px] h-[630px] flex flex-col mt-[50px] border rounded-xl p-2 relative">
-      <button
-        onClick={onClose}
-        className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-800"
-      >
-        <XMarkIcon className="w-6 h-6" />
-      </button>
+    <div className="bg-white w-[350px] h-[600px] flex flex-col mt-[30px] border rounded-xl p-2">
       <div className="p-4 pb-1 font-extrabold">응원 오픈톡</div>
       <div className="flex items-center justify-end px-2">
         <span className="text-xs">자동 업데이트</span>
