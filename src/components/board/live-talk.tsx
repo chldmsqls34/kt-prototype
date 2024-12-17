@@ -8,6 +8,7 @@ interface Message {
   userId: string;
   nickname: string;
   content: string;
+  createdAt: string;
 }
 const supabase = createClient();
 
@@ -30,6 +31,13 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
           userId: msg.user_id,
           nickname: msg.nickname,
           content: msg.content,
+          createdAt: new Date(msg.created_at).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
         }));
         setMessages(clientMessages);
       }
@@ -89,8 +97,11 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
   const messagesList = messages.map((msgObj) => (
     <div key={msgObj.id} className="flex w-full">
       <div className="flex flex-col text-sm w-full">
-        <div className="bg-gray-100 text-gray-800 rounded-xl shadow-sm w-full px-4 pt-2 pb-3 break-words space-y-3">
-          <div className="text-gray-600 font-semibold mb-1 text-xs">{msgObj.nickname}</div>
+        <div className="bg-gray-100 text-gray-800 rounded-xl shadow-sm w-full px-4 pt-2 pb-4 break-words space-y-3">
+          <div className="flex justify-between items-center mb-1">
+            <div className="text-gray-600 font-semibold text-xs">{msgObj.nickname}</div>
+            <div className="text-gray-400 text-xs">{msgObj.createdAt}</div>
+          </div>
           <div className="whitespace-pre-wrap">{msgObj.content}</div> {/**줄바꿈 표시*/}
         </div>
       </div>
@@ -98,7 +109,7 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
   ));
   
   return (
-    <div className="bg-white w-[400px] h-[630px] flex flex-col mt-[50px] border rounded-xl p-2">
+    <div className="bg-white w-[350px] h-[600px] flex flex-col mt-[30px] border rounded-xl p-2">
       <div className="p-4 pb-1 font-extrabold">응원 오픈톡</div>
       <div className="flex items-center justify-end px-2">
         <span className="text-xs">자동 업데이트</span>
