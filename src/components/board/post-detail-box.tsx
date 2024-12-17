@@ -1,9 +1,9 @@
 "use client";
-
 import { PostDetail } from "@/types";
 import { UserIcon } from "@heroicons/react/20/solid";
 import { CalendarDaysIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface PostDetailBoxProps {
   post: PostDetail;
@@ -36,11 +36,17 @@ export default function PostDetailBox({post}: PostDetailBoxProps) {
         </div>
         <div className="mt-5 p-4 min-h-[400px] text-sm">
           <p>{post.content}</p>
-          {
-            post.images?.map((image, index) => (
-              <img key={index} src={image} alt="post" className="mt-5"/>
-            ))
-          }
+          {post.images?.map((image, index) => (
+            <div key={index} className="flex py-5 justify-center">
+              <Image
+                src={image}
+                alt={`post-image-${index}`}
+                width={800}
+                height={600}
+                unoptimized
+              />
+            </div>
+          ))}
         </div>
         <div className="flex justify-end items-center mt-5 border-t-2 border-[--main-red-color] pt-3">
           <button
