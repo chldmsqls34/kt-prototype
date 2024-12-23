@@ -84,6 +84,24 @@ export async function fetchFilteredPost(
 export async function fetchPostById(postId: number): Promise<PostDetail | null> {
   try {
     const supabase = await createClient();
+    const { data: postData, error: fetchError } = await supabase
+      .from("posts")
+      .select("view_count")
+      .eq("id", postId)
+      .single();
+    if (fetchError) {
+      throw new Error(`Error fetching post for view update: ${fetchError.message}`);
+    }
+    if (!postData) {
+      return null;
+    }
+    const { error: viewError } = await supabase
+      .from("posts")
+      .update({ view_count: postData.view_count + 1 })
+      .eq("id", postId);
+    if (viewError) {
+      throw new Error(`Error updating view count: ${viewError.message}`);
+    }
     const { data, error } = await supabase
       .from("posts")
       .select(`
@@ -109,13 +127,14 @@ export async function fetchPostById(postId: number): Promise<PostDetail | null> 
       .eq("id", postId)
       .single();
 
-      if (error) {
-        throw new Error(`Error fetching posts: ${error.message}`);
-      }
-      
-      if (!data) {
-        return null;
-      }
+    if (error) {
+      throw new Error(`Error fetching posts: ${error.message}`);
+    }
+    
+    if (!data) {
+      return null;
+    }
+
     const clientProjectData: PostDetail = {
       id: data.id,
       userId: data.user_id,
