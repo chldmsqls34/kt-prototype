@@ -58,6 +58,7 @@ export async function createComment(formData: FormData, postId: number) {
     if (postError) {
       return { message: '댓글 저장에 실패했습니다' };
     }
+    revalidatePath(`/fan/board/${postId}`);
 
   } catch(error){
       console.error('Error creating post:', error);
@@ -65,6 +66,68 @@ export async function createComment(formData: FormData, postId: number) {
         message: '댓글 작성 중 예상치 못한 오류가 발생했습니다. 나중에 다시 시도해주세요.',
       };
   }
-  revalidatePath(`/fan/board/${postId}`, 'layout');
-  redirect(`/fan/board/${postId}`);
+
+}
+
+
+export async function updateComment(formData: FormData, commentId: number) {
+  try {
+    const supabase = await createClient();
+    const validateFields = CreateFormSchema.safeParse({
+      content: formData.get('editContent') as string,
+    });
+  
+    if(!validateFields.success){
+      return {
+        errors: validateFields.error.flatten().fieldErrors,
+        message: '입력값을 확인해주세요',
+      }
+    }
+    const { content } = validateFields.data;
+  
+    const { data:commentData, error: postError } = await supabase
+      .from('comments')
+      .update({ content: content })
+      .eq('id', commentId)
+      .select('post_id')
+      .single();
+  
+    if (postError) {
+      return { message: '댓글 수정에 실패했습니다' };
+    }
+    const postId:number = commentData.post_id;
+    revalidatePath(`/fan/board/${postId}`);
+
+  } catch(error){
+      console.error('Error creating post:', error);
+      return {
+        message: '댓글 수정 중 예상치 못한 오류가 발생했습니다. 나중에 다시 시도해주세요.',
+      };
+  }
+
+}
+
+export async function deleteComment(commentId:number) {
+  try {
+    const supabase = await createClient();
+    const { data:commentData, error: postError } = await supabase
+      .from('comments')
+      .delete()
+      .eq('id', commentId)
+      .select('post_id')
+      .single();
+
+    if (postError) {
+      return { message: '댓글 삭제에 실패했습니다' };
+    }
+    const postId:number = commentData.post_id;
+    revalidatePath(`/fan/board/${postId}`);
+
+  } catch(error){
+      console.error('Error creating post:', error);
+      return {
+        message: '댓글 삭제 중 예상치 못한 오류가 발생했습니다. 나중에 다시 시도해주세요.',
+      };
+  }
+
 }
