@@ -1,19 +1,22 @@
 "use client";
-import { PostDetail } from "@/types";
+import { PostDetail, ProfileDetail } from "@/types";
 import { UserIcon } from "@heroicons/react/20/solid";
 import { CalendarDaysIcon, CheckCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { createComment } from "@/services/comment-action";
+import { createComment, deleteComment, updateComment } from "@/services/comment-action";
+import { useState } from "react";
 
 interface PostDetailBoxProps {
   post: PostDetail;
+  userData: ProfileDetail | null;
 }
 
-export default function PostDetailBox({post}: PostDetailBoxProps) {
+export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
   const router = useRouter();
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -22,9 +25,34 @@ export default function PostDetailBox({post}: PostDetailBoxProps) {
     form.reset();
   };
 
+  const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>, commentId: number) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    await updateComment(formData, commentId);
+    setEditingCommentId(null); // 수정 상태 종료
+
+  };
+
+  const handleDeleteComment = async (commentId:number) => {
+    const confirmed = window.confirm('정말로 이 댓글을 삭제하시겠습니까?');
+    if (!confirmed) {
+      return;
+    }
+    try {
+      const result = await deleteComment(commentId);
+      if(result&&result.message){
+        alert(result.message);
+        return;
+      }
+    } catch (error) {
+      console.error('Error deleting project:', error);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center">
-      <div className="w-full py-6">
+      <div className="w-full pt-6">
         <div className="flex justify-between items-center rounded-lg bg-[--white-color-200] p-4 border-t-2 border-[--main-red-color]">
           <div>
             <p>{post.title}</p>
@@ -68,7 +96,7 @@ export default function PostDetailBox({post}: PostDetailBoxProps) {
         </div>
         <div className="space-y-4 pt-8">
           <h1>댓글</h1>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleCreateSubmit}>
             <div className="flex space-x-2">
               <textarea
                 id="content"
@@ -86,12 +114,61 @@ export default function PostDetailBox({post}: PostDetailBoxProps) {
               </button>
             </div>
           </form>
-          <div className="border-b py-4">
-            {post.comments?.map((comment, index) => (
-              <div key={index} className="flex w-full">
+          <div className="pt-4">
+            {post.comments?.map((comment) => (
+              <div key={comment.id} className="flex w-full">
                 <div className="flex flex-col text-sm w-full border-t">
                   <div className="text-gray-800 w-full p-4 break-words space-y-8">
-                    <div className="whitespace-pre-wrap">{comment.content}</div>
+                    <div className="flex justify-between items-center mb-1">
+                      {editingCommentId === comment.id ? (
+                        <form
+                          onSubmit={(e) => handleEditSubmit(e, comment.id)}
+                          className="w-full"
+                        >
+                          <textarea
+                            id="editContent"
+                            name="editContent"
+                            rows={3}
+                            className="block w-full resize-none p-2 text-sm border"
+                            defaultValue={comment.content}
+                            required
+                          />
+                          <div className="flex gap-2 py-2">
+                            <button
+                              type="submit"
+                              className="text-sm"
+                            >
+                              저장
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingCommentId(null)}
+                              className="text-sm"
+                            >
+                              취소
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <div className="whitespace-pre-wrap">{comment.content}</div>
+                      )}
+                      {userData?.id === comment.userId && editingCommentId !== comment.id && (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setEditingCommentId(comment.id)}
+                            className="text-sm"
+                          >
+                            수정
+                          </button>
+                          <button 
+                            onClick={()=>handleDeleteComment(comment.id)}
+                            className="text-sm"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex justify-between items-center mb-1">
                       <div className="text-gray-600 font-semibold text-xs">{comment.author}</div>
                       <div className="text-gray-400 text-xs">{comment.createdAt}</div>
