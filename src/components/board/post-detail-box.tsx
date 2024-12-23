@@ -86,7 +86,15 @@ export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
             </div>
           ))}
         </div>
-        <div className="flex justify-end items-center mt-5 border-t-2 border-[--main-red-color] pt-3">
+        <div className="flex justify-end items-center mt-5 border-t-2 border-[--main-red-color] pt-3 space-x-4">
+          {userData?.id === post.userId && (
+            <button
+              onClick={() => router.push(`/fan/board/${post.id}/edit`)}
+              className="bg-[--black-color-600] text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
+            >
+              수정하기
+            </button>
+          )}
           <button
             onClick={() => router.push('/fan/board')}
             className="bg-[--black-color-600] text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
