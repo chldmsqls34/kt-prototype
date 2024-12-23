@@ -3,18 +3,18 @@ import { ProfileDetail } from "@/types";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useRef, useState } from "react";
 
-interface Message {
+interface MessageEntity {
   id: string;
-  userId: string;
+  user_id: string;
   nickname: string;
   content: string;
-  createdAt: string;
+  created_at: Date;
 }
 const supabase = createClient();
 
 export default function LiveTalk({ userData }: { userData: ProfileDetail | null }) {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageEntity[]>([]);
   const [isAutoUpdate, setIsAutoUpdate] = useState(true); // 자동 업데이트 상태
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -26,20 +26,7 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
         .order("created_at", { ascending: true });
 
       if (data) {
-        const clientMessages = data.map((msg) => ({
-          id: msg.id,
-          userId: msg.user_id,
-          nickname: msg.nickname,
-          content: msg.content,
-          createdAt: new Date(msg.created_at).toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-        }));
-        setMessages(clientMessages);
+        setMessages(data as MessageEntity[]);
       }
       if (error) console.error("Error fetching messages:", error.message);
     };
@@ -57,7 +44,7 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "messages" },
           (payload) => {
-            setMessages((prevMessages) => [...prevMessages, payload.new as Message]);
+            setMessages((prevMessages) => [...prevMessages, payload.new as MessageEntity]);
           }
         )
         .subscribe();
@@ -100,7 +87,14 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
         <div className="bg-gray-100 text-gray-800 rounded-xl shadow-sm w-full px-4 pt-2 pb-4 break-words space-y-3">
           <div className="flex justify-between items-center mb-1">
             <div className="text-gray-600 font-semibold text-xs">{msgObj.nickname}</div>
-            <div className="text-gray-400 text-xs">{msgObj.createdAt}</div>
+            <div className="text-gray-400 text-xs">{new Date(msgObj.created_at).toLocaleDateString('ko-KR', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              })}
+            </div>
           </div>
           <div className="whitespace-pre-wrap">{msgObj.content}</div> {/**줄바꿈 표시*/}
         </div>
