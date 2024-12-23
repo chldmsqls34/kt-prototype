@@ -4,6 +4,7 @@ import { useFormState } from "react-dom";
 import { useState } from "react";
 import { PaperClipIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function CreatePostForm() {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function CreatePostForm() {
               required
             />
             {state.errors?.title && (
-              <p className="text-red-500 text-sm">{state.errors.title[0]}</p>
+              <p className="text-[--main-red-color] text-sm">{state.errors.title[0]}</p>
             )}
             <label htmlFor="content" className="sr-only">
               Content
@@ -79,7 +80,7 @@ export default function CreatePostForm() {
               required
             />
             {state.errors?.content && (
-              <p className="text-red-500 text-sm">{state.errors.content[0]}</p>
+              <p className="text-[--main-red-color] text-sm">{state.errors.content[0]}</p>
             )}
           </div>
 
@@ -93,20 +94,23 @@ export default function CreatePostForm() {
               className="hidden"
             />
             {state.errors?.imageFiles && (
-              <p className="text-red-500 text-sm mt-1">{state.errors.imageFiles[0]}</p>
+              <p className="text-[--main-red-color] text-sm mt-1">{state.errors.imageFiles[0]}</p>
             )}
-            <div className="flex gap-2 mt-3">
+            <div className="flex gap-4 mt-3 min-h-[80px]">
               {images.map((img, index) => (
-                <div key={index} className="relative w-20 h-20">
-                  <img
+                <div key={index} className="relative">
+                  <Image
                     src={img.preview}
                     alt="미리보기"
-                    className="w-full h-full object-cover rounded"
+                    width={128}
+                    height={128}
+                    className="object-cover rounded"
+                    unoptimized // 로컬 파일 URL 최적화 방지
                   />
                   <button
                     type="button"
                     onClick={() => handleImageRemove(index)}
-                    className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                    className="absolute -top-1.5 -right-1.5 bg-[--main-red-color] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
                   >
                     &times;
                   </button>
@@ -115,7 +119,7 @@ export default function CreatePostForm() {
             </div>
           </div>
           {state.message && (
-            <div className="text-center text-red-500 text-sm">{state.message}</div>
+            <div className="text-center text-[--main-red-color] text-sm">{state.message}</div>
           )}
 
           <div className="flex justify-between items-center mt-5 border-t border-gray-200 pt-3">
@@ -125,14 +129,17 @@ export default function CreatePostForm() {
             </label>
             <div className="flex gap-2">
               <button
-                onClick={() => router.push('/fan/board')}
-                className="bg-gray-400 text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push('/fan/board')
+                }}
+                className="bg-[--black-color-600] text-white text-sm px-4 py-2 rounded hover:bg-gray-400"
               >
                 목록보기
               </button>
               <button
                 type="submit"
-                className="bg-gray-600 text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
+                className="bg-gray-600 text-white text-sm px-4 py-2 rounded hover:bg-gray-400"
               >
                 작성하기
               </button>

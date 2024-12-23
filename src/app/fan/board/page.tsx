@@ -1,5 +1,6 @@
 import BoardSearchBar from "@/components/board/board-search-bar";
-import LiveTalkToggle from "@/components/board/live-talk-toggle";
+import LiveTalk from "@/components/board/live-talk";
+
 import { CreatePost } from "@/components/board/post-buttons";
 import PostCard from "@/components/board/post-card";
 import { Banner } from "@/components/common/banner";
@@ -47,7 +48,9 @@ export default async function FanBoardPage({
             <CreatePost />
           </div>
         </div>
-        <LiveTalkToggle userData={userData} />
+        <div className="hidden lg:block pl-4">
+          <LiveTalk userData={userData} />
+        </div>
       </div>
     </div>
   );

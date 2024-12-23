@@ -40,7 +40,7 @@ export default function PostCard({posts}: PostCardProps) {
                 {posts&&posts.map((post) => (
                   <tr 
                     key={post.id}
-                    onClick={()=>{router.push(`/fan/posts/${post.id}`)}}
+                    onClick={()=>{router.push(`/fan/board/${post.id}`)}}
                   >
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8 text-center">
                       {post.id}
