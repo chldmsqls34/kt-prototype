@@ -6,7 +6,10 @@ import { useState } from "react";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const togglePassword = () => setShowPassword((prevState) => !prevState);
+  const togglePassword = (e:React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setShowPassword((prevState) => !prevState)
+  };
   
   return (
     <form>
