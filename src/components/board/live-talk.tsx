@@ -103,7 +103,7 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
   ));
   
   return (
-    <div className="bg-white w-[350px] h-[600px] flex flex-col mt-[30px] border rounded-xl p-2">
+    <div className="bg-white w-[350px] h-[630px] flex flex-col mt-[50px] border rounded-xl p-2">
       <div className="p-4 pb-1 font-extrabold">응원 오픈톡</div>
       <div className="flex items-center justify-end px-2">
         <span className="text-xs">자동 업데이트</span>
