@@ -1,10 +1,5 @@
-import BoardSearchBar from "@/components/board/board-search-bar";
-import LiveTalkToggle from "@/components/board/live-talk-toggle";
-import { CreatePost } from "@/components/board/post-buttons";
-import PostCard from "@/components/board/post-card";
 import PostDetailBox from "@/components/board/post-detail-box";
 import { Banner } from "@/components/common/banner";
-import Pagination from "@/components/common/pagination";
 import TabMenu from "@/components/common/tab-menu2";
 import Breadcrumbs from "@/components/tailwind-ui/breadcrumbs/simple-with-chevrons";
 import { FAN_BANNER_DATA } from "@/contants";
