@@ -45,7 +45,7 @@ export default async function FanBoardPage({
             <div className="mx-auto flex justify-center">
               {totalPages && <Pagination totalPages={totalPages} />}
             </div>
-            <CreatePost />
+            <CreatePost userData={userData} />
           </div>
         </div>
         <div className="hidden lg:block pl-4">

@@ -64,8 +64,14 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!input.trim() || !userData) return;
-
+    if (!userData) {
+      alert("로그인이 필요합니다");
+      return;
+    }
+    if (!input.trim()) {
+      alert("메시지를 입력해주세요");
+      return;
+    };
     const { error } = await supabase.from("messages").insert([
       {
         user_id: userData.id,
@@ -83,8 +89,8 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
 
   const messagesList = messages.map((msgObj) => (
     <div key={msgObj.id} className="flex w-full">
-      <div className="flex flex-col text-sm w-full">
-        <div className="bg-gray-100 text-gray-800 rounded-xl shadow-sm w-full px-4 pt-2 pb-4 break-words space-y-3">
+      <div className="flex flex-col text-sm w-full py-2">
+        <div className="bg-gray-100 text-gray-800 rounded-xl shadow-sm w-full px-4 pt-2 pb-4 break-words space-y-4">
           <div className="flex justify-between items-center mb-1">
             <div className="text-gray-600 font-semibold text-xs">{msgObj.nickname}</div>
             <div className="text-gray-400 text-xs">{new Date(msgObj.created_at).toLocaleDateString('ko-KR', {
@@ -127,7 +133,7 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
         </div>
       </div>
       <div ref={chatContainerRef} className="flex-1 p-2 overflow-y-auto">
-        <div className="flex flex-col-reverse space-y-4">{messagesList}</div>
+        <div className="flex flex-col-reverse">{messagesList}</div>
       </div>
     </div>
   );

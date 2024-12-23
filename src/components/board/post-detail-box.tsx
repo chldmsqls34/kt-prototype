@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createComment, deleteComment, updateComment } from "@/services/comment-action";
 import { useState } from "react";
+import { deletePost } from "@/services/post-action";
 
 interface PostDetailBoxProps {
   post: PostDetail;
@@ -14,14 +15,23 @@ interface PostDetailBoxProps {
 
 export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
   const router = useRouter();
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
 
   const handleCreateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if(!userData){
+      alert('로그인이 필요합니다');
+      return;
+    }
     const form = e.currentTarget;
     const formData = new FormData(form);
     const postId = post.id;
-    await createComment(formData, postId);
+    const result = await createComment(formData, postId);
+    if(result&&result.errors){
+      setErrors(result.errors);
+      return;
+    }
     form.reset();
   };
 
@@ -29,8 +39,12 @@ export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    await updateComment(formData, commentId);
-    setEditingCommentId(null); // 수정 상태 종료
+    const result = await updateComment(formData, commentId);
+    if(result&&result.errors){
+      setErrors(result.errors);
+      return;
+    }
+    setEditingCommentId(null);
 
   };
 
@@ -40,13 +54,21 @@ export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
       return;
     }
     try {
-      const result = await deleteComment(commentId);
-      if(result&&result.message){
-        alert(result.message);
-        return;
-      }
+      await deleteComment(commentId);
     } catch (error) {
-      console.error('Error deleting project:', error);
+      console.error('Error deleting comment:', error);
+    }
+  };
+
+  const handleDeletePost = async (postId:number) => {
+    const confirmed = window.confirm('정말로 이 게시글을 삭제하시겠습니까?');
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await deletePost(postId);
+    } catch (error) {
+      console.error('Error deleting post:', error);
     }
   };
 
@@ -88,12 +110,20 @@ export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
         </div>
         <div className="flex justify-end items-center mt-5 border-t-2 border-[--main-red-color] pt-3 space-x-4">
           {userData?.id === post.userId && (
-            <button
-              onClick={() => router.push(`/fan/board/${post.id}/edit`)}
-              className="bg-[--black-color-600] text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
-            >
-              수정하기
-            </button>
+            <>
+              <button 
+                onClick={()=>handleDeletePost(post.id)}
+                className="bg-[--black-color-600] text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
+              >
+                삭제하기
+              </button>
+              <button
+                onClick={() => router.push(`/fan/board/${post.id}/edit`)}
+                className="bg-[--black-color-600] text-white text-sm px-4 py-2 rounded hover:bg-gray-500"
+              >
+                수정하기
+              </button>
+            </>
           )}
           <button
             onClick={() => router.push('/fan/board')}
@@ -112,7 +142,6 @@ export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
                 rows={3}
                 placeholder="내용을 입력하세요"
                 className="block w-full resize-none p-5 text-sm border-2"
-                required
               />
               <button
                 type="submit"
@@ -122,6 +151,13 @@ export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
               </button>
             </div>
           </form>
+          {errors.content && 
+            errors.content.map((error: string)=>(
+              <p className="mt-2 text-sm text-red-500" key={error}>
+                {error}
+              </p>
+            )
+          )}
           <div className="pt-4">
             {post.comments?.map((comment) => (
               <div key={comment.id} className="flex w-full">
@@ -141,6 +177,13 @@ export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
                             defaultValue={comment.content}
                             required
                           />
+                          {errors.editContent && 
+                            errors.editContent.map((error: string)=>(
+                              <p className="mt-2 text-sm text-red-500" key={error}>
+                                {error}
+                              </p>
+                            )
+                          )}
                           <div className="flex gap-2 py-2">
                             <button
                               type="submit"

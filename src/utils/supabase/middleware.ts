@@ -38,6 +38,11 @@ export async function updateSession(request: NextRequest) {
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
+  if (request.nextUrl.pathname.startsWith("/fan/board/write") && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/fan/board";
+    return NextResponse.redirect(url);
+  }
 
   if (request.nextUrl.pathname.startsWith("/login") && user) {
     const url = request.nextUrl.clone();

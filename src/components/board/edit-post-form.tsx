@@ -12,6 +12,7 @@ interface UpdatePostFormProps {
 
 export default function EditPostForm({ post }: UpdatePostFormProps) {
   const router = useRouter();
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [images, setImages] = useState<{ file?: File; preview: string }[]>(
     post.images.map((url) => ({ preview: url }))
   );
@@ -53,7 +54,11 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
     });
 
     try {
-      await updatePost(formData, post.id);
+      const result = await updatePost(formData, post.id);
+      if (result && result.errors) {
+        setErrors(result.errors);
+        return;
+      }
     } catch (error) {
       console.error("Error updating post:", error);
       alert("게시글 수정 중 문제가 발생했습니다. 다시 시도해주세요.");
@@ -68,15 +73,23 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
             <label htmlFor="title" className="sr-only">
               Title
             </label>
-            <input
-              id="title"
-              name="title"
-              type="text"
-              defaultValue={post.title}
-              placeholder="제목"
-              className="block w-full p-5 font-medium text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 border-b"
-              required
-            />
+            <div className="flex whitespace-nowrap border-b">
+              <input
+                id="title"
+                name="title"
+                type="text"
+                defaultValue={post.title}
+                placeholder="제목"
+                className="block w-full p-5 font-medium text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0"
+                required
+              />
+              {errors.title &&
+                errors.title.map((error: string) => (
+                  <p className="p-5 text-sm text-red-500" key={error}>
+                    {error}
+                  </p>
+                ))}
+            </div>
 
             <label htmlFor="content" className="sr-only">
               Content
@@ -90,6 +103,13 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
               className="block w-full resize-none p-5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
               required
             />
+           {errors.content && 
+              errors.content.map((error: string)=>(
+                <p className="p-5 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              )
+            )}
           </div>
 
           <div className="px-3 py-3">
@@ -101,6 +121,13 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
               onChange={handleImageChange}
               className="hidden"
             />
+            {errors.imageFiles && 
+              errors.imageFiles.map((error: string)=>(
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              )
+            )}
 
             <div className="flex gap-4 mt-3 min-h-[80px]">
               {images.map((img, index) => (
