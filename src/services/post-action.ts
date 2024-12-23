@@ -114,9 +114,10 @@ export async function createPost(prevState:PostState, formData: FormData) {
     }
 
   } catch(error){
-    return {
-      message: '게시글 작성 중 예상치 못한 오류가 발생했습니다. 나중에 다시 시도해주세요.',
-    };
+      console.error('Error creating post:', error);
+      return {
+        message: '게시글 작성 중 예상치 못한 오류가 발생했습니다. 나중에 다시 시도해주세요.',
+      };
   }
     
   revalidatePath('/fan/board');
