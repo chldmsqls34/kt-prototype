@@ -69,7 +69,7 @@ export default function LiveTalk({ userData }: { userData: ProfileDetail | null 
     const { error } = await supabase.from("messages").insert([
       {
         user_id: userData.id,
-        nickname: userData.nickname || "Anonymous",
+        nickname: userData.nickname,
         content: input.trim(),
       },
     ]);
