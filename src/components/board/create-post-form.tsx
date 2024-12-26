@@ -12,15 +12,6 @@ import { createPost } from "@/services/post-action";
 const postSchema = z.object({
   title: z.string().min(2, "제목을 2글자 이상 입력하세요").max(100, "제목은 100자 이내여야 합니다."),
   content: z.string().min(2, "내용을 2글자 이상 입력하세요").max(1000, "내용은 1000자 이내여야 합니다."),
-  images: z
-    .array(
-      z.object({
-        file: z.instanceof(File),
-        preview: z.string(),
-      })
-    )
-    .max(3, "이미지는 최대 3개까지 업로드할 수 있습니다.")
-    .optional(),
 });
 
 type PostFormValues = z.infer<typeof postSchema>;
@@ -32,54 +23,55 @@ export default function CreatePostForm() {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
+    reset,
     formState: { errors },
   } = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
     defaultValues: {
       title: "",
       content: "",
-      images: [],
     },
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
-    const existingImages = watch("images") || [];
-    // 중복된 파일 제거 (파일명과 수정시간이 일치하는 파일 제외)
+
+    // 중복된 파일 제거
     const newFiles = files.filter(
       (file) =>
-        !existingImages.some((image) => image.file.name === file.name && image.file.lastModified === file.lastModified)
+        !imagePreviews.some((image) => image.file.name === file.name && image.file.lastModified === file.lastModified)
     );
 
     // 업로드 제한 (최대 3개)
-    if (newFiles.length + existingImages.length > 3) {
+    if (newFiles.length + imagePreviews.length > 3) {
       alert("이미지는 최대 3개까지 업로드할 수 있습니다.");
       return;
     }
+
     const newImagePreviews = newFiles.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
     }));
 
     setImagePreviews((prev) => [...prev, ...newImagePreviews]);
-    setValue("images", [...existingImages, ...newImagePreviews]);
   };
 
   const handleImageRemove = (index: number) => {
-    const updatedImages = watch("images")?.filter((_, i) => i !== index) || [];
-    setImagePreviews(updatedImages);
-    setValue("images", updatedImages);
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const onSubmit = async(data: PostFormValues) => {
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("content", data.content);
-    data.images?.forEach((img) => formData.append("images", img.file));
-    await createPost(formData);
-    setImagePreviews([]);
+    imagePreviews.forEach((img) => formData.append("images", img.file));
+    try {
+      await createPost(formData);
+      setImagePreviews([]);
+      reset();
+    } catch (error) {
+      console.error("Error creating post:", error);
+    }
   };
 
   return (
@@ -141,7 +133,6 @@ export default function CreatePostForm() {
                 </div>
               ))}
             </div>
-            {errors.images && <p className="text-[--main-red-color] text-sm">{errors.images.message}</p>}
           </div>
           <div className="flex justify-between items-center mt-5 border-t border-gray-200 pt-3">
             <label htmlFor="file-input" className="flex items-center text-gray-500 hover:text-gray-600 cursor-pointer">

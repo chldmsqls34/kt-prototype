@@ -15,15 +15,6 @@ interface UpdatePostFormProps {
 const postSchema = z.object({
   title: z.string().min(2, "제목을 2글자 이상 입력하세요").max(100, "제목은 100자 이내여야 합니다."),
   content: z.string().min(2, "내용을 2글자 이상 입력하세요").max(1000, "내용은 1000자 이내여야 합니다."),
-  images: z
-    .array(
-      z.object({
-        file: z.instanceof(File).optional(),
-        preview: z.string(),
-      })
-    )
-    .max(3, "이미지는 최대 3개까지 업로드할 수 있습니다.")
-    .optional(),
 });
 
 type PostFormValues = z.infer<typeof postSchema>;
@@ -36,29 +27,24 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors },
   } = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
     defaultValues: {
       title: post.title,
       content: post.content,
-      images: post.images.map((url) => ({ preview: url })),
     },
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
-    const existingImages = watch("images") || [];
 
-    // 중복된 파일 제거 및 업로드 제한 처리
     const newFiles = files.filter(
       (file) =>
-        !existingImages.some((image) => image.file?.name === file.name && image.file?.lastModified === file.lastModified)
+        !imagePreviews.some((image) => image.file?.name === file.name && image.file?.lastModified === file.lastModified)
     );
 
-    if (newFiles.length + existingImages.length > 3) {
+    if (newFiles.length + imagePreviews.length > 3) {
       alert("이미지는 최대 3개까지 업로드할 수 있습니다.");
       return;
     }
@@ -69,13 +55,10 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
     }));
 
     setImagePreviews((prev) => [...prev, ...newImagePreviews]);
-    setValue("images", [...existingImages, ...newImagePreviews]);
   };
 
   const handleImageRemove = (index: number) => {
-    const updatedImages = watch("images")?.filter((_, i) => i !== index) || [];
-    setImagePreviews(updatedImages);
-    setValue("images", updatedImages);
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const onSubmit = async (data: PostFormValues) => {
@@ -84,7 +67,7 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
     formData.append("content", data.content);
 
     // 새로운 이미지와 기존 이미지를 구분하여 추가
-    data.images?.forEach((img) => {
+    imagePreviews.forEach((img) => {
       if (img.file) {
         formData.append("images", img.file);
       } else {
@@ -165,7 +148,6 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
                 </div>
               ))}
             </div>
-            {errors.images && <p className="text-red-500 text-sm">{errors.images.message}</p>}
           </div>
 
           <div className="flex justify-between items-center mt-5 border-t border-gray-200 pt-3">

@@ -9,17 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 const postSchema = z.object({
   title: z.string().min(2, "제목을 2글자 이상 입력하세요").max(100, "제목은 100자 이내여야 합니다."),
   content: z.string().min(2, "내용을 2글자 이상 입력하세요").max(1000, "내용은 1000자 이내여야 합니다."),
-  images: z
-    .array(
-      z.object({
-        file: z.instanceof(File).optional(),
-        preview: z.string(),
-      })
-    )
-    .max(3, "이미지는 최대 3개까지 업로드할 수 있습니다.")
-    .optional(),
 });
-
 
 export async function createPost(formData: FormData) {
   try {
