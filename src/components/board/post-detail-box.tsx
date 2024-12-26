@@ -7,77 +7,44 @@ import Image from "next/image";
 import { createComment, deleteComment, updateComment } from "@/services/comment-action";
 import { useState } from "react";
 import { deletePost } from "@/services/post-action";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 interface PostDetailBoxProps {
   post: PostDetail;
   userData: ProfileDetail | null;
 }
-const commentSchema = z.object({
-  content: z.string().min(2, "내용을 2글자 이상 입력하세요").max(500, "내용은 500자 이내여야 합니다."),
-});
-
-type CommentFormValues = z.infer<typeof commentSchema>;
 
 export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
   const router = useRouter();
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
 
-  // 댓글 작성 폼
-  const {
-    register: createRegister,
-    handleSubmit: handleCreateSubmit,
-    reset: resetCreateForm,
-    formState: { errors: createErrors },
-  } = useForm<CommentFormValues>({
-    resolver: zodResolver(commentSchema),
-  });
-
-  // 댓글 수정 폼
-  const {
-    register: editRegister,
-    handleSubmit: handleEditSubmit,
-    formState: { errors: editErrors },
-  } = useForm<CommentFormValues>({
-    resolver: zodResolver(commentSchema),
-  });
-
-  const onCreateSubmit = async (data: CommentFormValues) => {
+  const handleCreateSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if(!userData){
       alert('로그인이 필요합니다');
       return;
     }
-    try {
-      const formData = new FormData();
-      formData.append("content", data.content);
-      const result = await createComment(formData, post.id);
-      if (result && result.errors) {
-        alert("댓글 작성 중 문제가 발생했습니다.");
-        return;
-      }
-      resetCreateForm();
-    } catch (error) {
-      console.error("Error creating comment:", error);
-      alert("댓글 작성 중 문제가 발생했습니다. 다시 시도해주세요.");
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const postId = post.id;
+    const result = await createComment(formData, postId);
+    if(result&&result.errors){
+      setErrors(result.errors);
+      return;
     }
+    form.reset();
   };
 
-  const onEditSubmit = async (data: CommentFormValues, commentId: number) => {
-    try {
-      const formData = new FormData();
-      formData.append("content", data.content);
-      const result = await updateComment(formData, commentId);
-      if (result && result.errors) {
-        alert("댓글 수정 중 문제가 발생했습니다.");
-        return;
-      }
-      setEditingCommentId(null);
-    } catch (error) {
-      console.error("Error updating comment:", error);
-      alert("댓글 수정 중 문제가 발생했습니다. 다시 시도해주세요.");
+  const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>, commentId: number) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const result = await updateComment(formData, commentId);
+    if(result&&result.errors){
+      setErrors(result.errors);
+      return;
     }
+    setEditingCommentId(null);
 
   };
 
@@ -167,10 +134,11 @@ export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
         </div>
         <div className="space-y-4 pt-8">
           <h1>댓글</h1>
-          <form onSubmit={handleCreateSubmit(onCreateSubmit)}>
+          <form onSubmit={handleCreateSubmit}>
             <div className="flex space-x-2">
               <textarea
-                {...createRegister("content")}
+                id="content"
+                name="content"
                 rows={3}
                 placeholder="내용을 입력하세요"
                 className="block w-full resize-none p-5 text-sm border-2"
@@ -182,11 +150,14 @@ export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
-            {createErrors.content && (
-              <p className="mt-2 text-xs text-red-500">{createErrors.content.message}</p>
-            )}
           </form>
-
+          {errors.content && 
+            errors.content.map((error: string)=>(
+              <p className="mt-2 text-sm text-red-500" key={error}>
+                {error}
+              </p>
+            )
+          )}
           <div className="pt-4">
             {post.comments?.map((comment) => (
               <div key={comment.id} className="flex w-full">
@@ -195,17 +166,23 @@ export default function PostDetailBox({post,userData}: PostDetailBoxProps) {
                     <div className="flex justify-between items-center mb-1">
                       {editingCommentId === comment.id ? (
                         <form
-                          onSubmit={handleEditSubmit((data) => onEditSubmit(data, comment.id))}
+                          onSubmit={(e) => handleEditSubmit(e, comment.id)}
                           className="w-full"
                         >
                           <textarea
-                            {...editRegister("content")}
+                            id="editContent"
+                            name="editContent"
                             rows={3}
                             className="block w-full resize-none p-2 text-sm border"
                             defaultValue={comment.content}
+                            required
                           />
-                          {editErrors.content && (
-                            <p className="mt-2 text-sm text-red-500">{editErrors.content.message}</p>
+                          {errors.editContent && 
+                            errors.editContent.map((error: string)=>(
+                              <p className="mt-2 text-sm text-red-500" key={error}>
+                                {error}
+                              </p>
+                            )
                           )}
                           <div className="flex gap-2 py-2">
                             <button
