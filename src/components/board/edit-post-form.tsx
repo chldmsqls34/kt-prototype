@@ -5,26 +5,46 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { PostDetail } from "@/types";
 import { updatePost } from "@/services/post-action";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface UpdatePostFormProps {
   post: PostDetail;
 }
+const postSchema = z.object({
+  title: z.string().min(2, "제목을 2글자 이상 입력하세요").max(100, "제목은 100자 이내여야 합니다."),
+  content: z.string().min(2, "내용을 2글자 이상 입력하세요").max(1000, "내용은 1000자 이내여야 합니다."),
+});
+
+type PostFormValues = z.infer<typeof postSchema>;
 
 export default function EditPostForm({ post }: UpdatePostFormProps) {
   const router = useRouter();
-  const [errors, setErrors] = useState<Record<string, string[]>>({});
-  const [images, setImages] = useState<{ file?: File; preview: string }[]>(
+  const [imagePreviews, setImagePreviews] = useState<{ file?: File; preview: string }[]>(
     post.images.map((url) => ({ preview: url }))
   );
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PostFormValues>({
+    resolver: zodResolver(postSchema),
+    defaultValues: {
+      title: post.title,
+      content: post.content,
+    },
+  });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
+
     const newFiles = files.filter(
       (file) =>
-        !images.some((image) => image.file?.name === file.name && image.file?.lastModified === file.lastModified)
+        !imagePreviews.some((image) => image.file?.name === file.name && image.file?.lastModified === file.lastModified)
     );
 
-    if (newFiles.length + images.length > 3) {
+    if (newFiles.length + imagePreviews.length > 3) {
       alert("이미지는 최대 3개까지 업로드할 수 있습니다.");
       return;
     }
@@ -34,18 +54,20 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
       preview: URL.createObjectURL(file),
     }));
 
-    setImages((prev) => [...prev, ...newImagePreviews]);
+    setImagePreviews((prev) => [...prev, ...newImagePreviews]);
   };
 
   const handleImageRemove = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (data: PostFormValues) => {
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("content", data.content);
 
-    const formData = new FormData(e.currentTarget);
-    images.forEach((img) => {
+    // 새로운 이미지와 기존 이미지를 구분하여 추가
+    imagePreviews.forEach((img) => {
       if (img.file) {
         formData.append("images", img.file);
       } else {
@@ -56,7 +78,7 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
     try {
       const result = await updatePost(formData, post.id);
       if (result && result.errors) {
-        setErrors(result.errors);
+        alert("유효성 검사 실패");
         return;
       }
     } catch (error) {
@@ -68,48 +90,31 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
   return (
     <div className="flex items-center justify-center">
       <div className="w-full py-10">
-        <form onSubmit={handleSubmit} className="relative">
+        <form onSubmit={handleSubmit(onSubmit)} className="relative">
           <div className="rounded-lg bg-white outline outline-1 -outline-offset-1 outline-gray-300">
             <label htmlFor="title" className="sr-only">
               Title
             </label>
             <div className="flex whitespace-nowrap border-b">
               <input
-                id="title"
-                name="title"
+                {...register("title")}
                 type="text"
-                defaultValue={post.title}
                 placeholder="제목"
-                className="block w-full p-5 font-medium text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0"
-                required
+                className="block w-full p-5 font-medium text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 border-b"
               />
-              {errors.title &&
-                errors.title.map((error: string) => (
-                  <p className="p-5 text-sm text-red-500" key={error}>
-                    {error}
-                  </p>
-                ))}
+              {errors.title && <p className="text-red-500 text-xs p-5">{errors.title.message}</p>}
             </div>
 
             <label htmlFor="content" className="sr-only">
               Content
             </label>
             <textarea
-              id="content"
-              name="content"
+              {...register("content")}
               rows={10}
-              defaultValue={post.content}
               placeholder="내용을 입력하세요"
-              className="block w-full resize-none p-5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6"
-              required
+              className="block w-full resize-none p-5 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0"
             />
-           {errors.content && 
-              errors.content.map((error: string)=>(
-                <p className="p-5 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              )
-            )}
+            {errors.content && <p className="text-red-500 text-xs p-5">{errors.content.message}</p>}
           </div>
 
           <div className="px-3 py-3">
@@ -121,16 +126,9 @@ export default function EditPostForm({ post }: UpdatePostFormProps) {
               onChange={handleImageChange}
               className="hidden"
             />
-            {errors.imageFiles && 
-              errors.imageFiles.map((error: string)=>(
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              )
-            )}
 
             <div className="flex gap-4 mt-3 min-h-[80px]">
-              {images.map((img, index) => (
+              {imagePreviews.map((img, index) => (
                 <div key={index} className="relative">
                   <Image
                     src={img.preview}

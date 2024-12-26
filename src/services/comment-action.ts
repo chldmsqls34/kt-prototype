@@ -4,19 +4,14 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-const CreateFormSchema = z.object({
-  content: z.string().min(2, { message: '내용을 2글자 이상 입력해주세요' }),
+const commentSchema = z.object({
+  content: z.string().min(2, "내용을 2글자 이상 입력하세요").max(500, "내용은 500자 이내여야 합니다."),
 });
-
-const EditFormSchema = z.object({
-  editContent: z.string().min(2, { message: '내용을 2글자 이상 입력해주세요' }),
-});
-
 
 export async function createComment(formData: FormData, postId: number) {
   const supabase = await createClient();
   try {
-    const validateFields = CreateFormSchema.safeParse({
+    const validateFields = commentSchema.safeParse({
       content: formData.get('content') as string,
     });
   
@@ -76,8 +71,8 @@ export async function createComment(formData: FormData, postId: number) {
 export async function updateComment(formData: FormData, commentId: number) {
   try {
     const supabase = await createClient();
-    const validateFields = EditFormSchema.safeParse({
-      editContent: formData.get('editContent') as string,
+    const validateFields = commentSchema.safeParse({
+      content: formData.get('content') as string,
     });
   
     if(!validateFields.success){
@@ -86,11 +81,11 @@ export async function updateComment(formData: FormData, commentId: number) {
         message: '입력값을 확인해주세요',
       }
     }
-    const { editContent } = validateFields.data;
+    const { content } = validateFields.data;
   
     const { data:commentData, error: postError } = await supabase
       .from('comments')
-      .update({ content: editContent })
+      .update({ content: content })
       .eq('id', commentId)
       .select('post_id')
       .single();
