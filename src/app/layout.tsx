@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import '@/styles/globals.css';
 import '@/styles/main.css';
 import { WithFullWidthFlyoutMenu as Header } from '@/components/tailwind-ui/'
+import KTWizFooter from "@/components/common/KTWizFooter";
 
 export const metadata: Metadata = {
   title: "next.js prototype",
@@ -21,6 +22,7 @@ export default function RootLayout({
       <body className="flex h-full w-dvw flex-col">
         <Header />
         {children}
+        <KTWizFooter/>
       </body>
     </html>
   );

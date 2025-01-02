@@ -1,7 +1,6 @@
 'use server'
 
 export interface Photos {
-  artcContents: string;
   artcNextSeq: number;
   artcPrevSeq: number;
   artcSeq: number;
@@ -9,6 +8,7 @@ export interface Photos {
   artcTitle: string;
   boardCatSeq: number;
   boardCode: string;
+  contentsDate: string;
   delYn: string;
   endDttm: number;
   imgFilePath: string;
@@ -23,14 +23,23 @@ export interface Photos {
   viewCnt: number;
 }
 
-export const getPhotos = async (offset: number, limit: number) => {
+export const getPhotos = async (category:number, offset: number, limit: number, query?: string, startDate?: string, endDate?: string) => {
   try {
-    const url = `${process.env.PHOTO_API_URL}/v2/article/listByCategory?article.boardCode=006&search.pos=${offset}&search.max=${limit}`
+    const currentPage = Math.floor(offset / limit) + 1;
+    if(startDate && endDate){
+      const url = `${process.env.SERVER_API_URL}/article/wizphotolist${category}page?itemCount=${limit}&pageNum=${currentPage}&startDate=${startDate}&endDate=${endDate}`
+      const response = await fetch(url)
+      const result = await response.json()
+      return result.data.list as Photos[];
+    } else{
+    const url = `${process.env.SERVER_API_URL}/article/wizphotolist${category}page?searchWord=${query}&itemCount=${limit}&pageNum=${currentPage}`
     const response = await fetch(url)
     const result = await response.json()
     return result.data.list as Photos[]
+    }
   } catch (error: unknown) {
     console.log(error)
     throw new Error(`An error happened: ${error}`)
   }
 }
+

@@ -111,7 +111,7 @@ export const MENU_DATA: MenuData[] = [
       },
       {
         name: 'wiz 포토',
-        href: '/media/photos',
+        href: '/media/photos/1',
       },
       {
         name: '하이라이트',
