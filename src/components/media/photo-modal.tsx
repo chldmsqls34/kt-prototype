@@ -24,6 +24,8 @@ export default function PhotoModal({
   const [currentIndex, setCurrentIndex] = useState(selectedIndex);
   const [scale, setScale] = useState(1); // 확대/축소 비율
   const [isAutoSliding, setIsAutoSliding] = useState(false);
+  const [dragStartX, setDragStartX] = useState<number | null>(null);
+  const [dragDistance, setDragDistance] = useState(0);
 
   const handleZoomIn = () => {
     setScale((prevScale) => Math.min(prevScale + 0.5, 5)); // 최대 5배 확대
@@ -59,12 +61,59 @@ export default function PhotoModal({
           );
         }, 5000) // 5초 간격으로 슬라이드
       : null;
-  
+
     return () => {
       if (slideInterval) clearInterval(slideInterval);
     };
   }, [isAutoSliding, photoList.length]);
-  
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setDragStartX(e.clientX);
+    setDragDistance(0); // 초기화
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (dragStartX !== null) {
+      setDragDistance(e.clientX - dragStartX);
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (dragStartX !== null) {
+      // 드래그 거리에 따라 슬라이드 전환
+      if (dragDistance > 100 && currentIndex > 0) {
+        handlePrev(); // 왼쪽으로 슬라이드
+      } else if (dragDistance < -100 && currentIndex < photoList.length - 1) {
+        handleNext(); // 오른쪽으로 슬라이드
+      }
+    }
+    setDragStartX(null);
+    setDragDistance(0); // 초기화
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setDragStartX(e.touches[0].clientX);
+    setDragDistance(0); // 초기화
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (dragStartX !== null) {
+      setDragDistance(e.touches[0].clientX - dragStartX);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (dragStartX !== null) {
+      // 드래그 거리에 따라 슬라이드 전환
+      if (dragDistance > 100 && currentIndex > 0) {
+        handlePrev(); // 왼쪽으로 슬라이드
+      } else if (dragDistance < -100 && currentIndex < photoList.length - 1) {
+        handleNext(); // 오른쪽으로 슬라이드
+      }
+    }
+    setDragStartX(null);
+    setDragDistance(0); // 초기화
+  };
 
   if (!photoList[currentIndex]) return null;
 
@@ -88,14 +137,18 @@ export default function PhotoModal({
             <button
               onClick={handleZoomOut}
               disabled={scale === 1}
-              className={`p-2 text-gray-300 hover:text-white ${scale === 1 ? "opacity-50" : ""}`}
+              className={`p-2 text-gray-300 hover:text-white ${
+                scale === 1 ? "opacity-50" : ""
+              }`}
             >
               <MagnifyingGlassMinusIcon className="h-6 w-6" />
             </button>
             <button
               onClick={handleZoomIn}
               disabled={scale === 5}
-              className={`p-2 text-gray-300 hover:text-white ${scale === 5 ? "opacity-50" : ""}`}
+              className={`p-2 text-gray-300 hover:text-white ${
+                scale === 5 ? "opacity-50" : ""
+              }`}
             >
               <MagnifyingGlassPlusIcon className="h-6 w-6" />
             </button>
@@ -118,7 +171,15 @@ export default function PhotoModal({
           </div>
         </div>
         {/* 이미지 슬라이드 영역 */}
-        <div className="relative flex items-center justify-center h-full overflow-hidden">
+        <div
+          className="relative flex items-center justify-center h-full overflow-hidden"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <button
             onClick={handlePrev}
             disabled={currentIndex === 0}
@@ -133,11 +194,15 @@ export default function PhotoModal({
             }}
           >
             {photoList.map((photo, index) => (
-              <div key={index} className="flex-shrink-0 w-full flex items-center justify-center">
+              <div
+                key={index}
+                className="flex-shrink-0 w-full flex items-center justify-center"
+              >
                 <img
                   src={photo.imgFilePath}
                   alt={photo.artcTitle}
                   className="max-w-[1600px] max-h-[1000px] object-contain"
+                  draggable={false}
                   style={{
                     transform: `scale(${scale})`,
                     transition: "transform 0.3s ease-in-out",

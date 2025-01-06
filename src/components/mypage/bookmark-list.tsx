@@ -10,8 +10,8 @@ export default function BookmarkList({bookmarks}:BookmarkListProps) {
   const router = useRouter();
 
   return (
-    <div className="container mx-auto mt-10">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="container mx-auto mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {bookmarks.map((bookmark: BookmarkListItem) => (
           <div
             key={bookmark.id}
@@ -24,7 +24,6 @@ export default function BookmarkList({bookmarks}:BookmarkListProps) {
                 alt={`post-image-${bookmark.id}`}
                 className="absolute top-0 left-0 w-full h-full object-cover rounded-xl"
                 loading="lazy"
-
               />
             </div>
             <div className="p-2">

@@ -44,7 +44,7 @@ export default function PhotoList({initialPhotos, category, query, startDate, en
     } finally {
       setIsLoading(false);
     }
-  }, [category, offset, isLoading, query, startDate, endDate]);
+  }, [category, offset, isLoading, query, startDate, endDate, hasMore]);
 
   useEffect(() => {
     setPhotoList(initialPhotos);
